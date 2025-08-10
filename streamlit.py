@@ -5,7 +5,7 @@ import gdown
 import os
 
 # Download similarity.pkl from Google Drive if not already present
-url = 'https://drive.google.com/uc?id=1dAkM4GRJRn8fhJTv1xoLMHEaap_zO8tg'
+url = 'https://drive.google.com/file/d/1dAkM4GRJRn8fhJTv1xoLMHEaap_zO8tg/view?usp=drive_link'
 output = 'similarity.pkl'
 if not os.path.exists(output):
     gdown.download(url, output, quiet=False)
@@ -32,3 +32,4 @@ if st.button('Recommend'):
     recommendations = recommend(selected_movie_name)
     for rec in recommendations:
         st.write(rec)
+
