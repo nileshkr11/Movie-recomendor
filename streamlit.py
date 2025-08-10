@@ -5,8 +5,8 @@ import gdown
 import os
 
 # Configuration
-SIMILARITY_FILE_ID = '1dAkM4GRJRn8fhJTv1xoLMHEaap_zO8tg'  # Replace with actual ID
-MOVIE_DICT_FILE_ID = '1E86_gfrucNdMiQMvsDEpLWo1kx8OYDhj'  # Replace with actual ID
+SIMILARITY_FILE_ID = '1fYHwVrnPHGsJ3r_k-zx6c9Wdv0__tW6_'  # Replace with actual ID
+MOVIE_DICT_FILE_ID = '1nsWnBymSJPbwCiEGU2TgSba8sfl8KBs4'  # Replace with actual ID
 
 @st.cache_resource
 def load_data():
@@ -61,3 +61,4 @@ if st.button('Recommend'):
         st.subheader("Recommended Movies:")
         for rec in recommendations:
             st.write(rec)
+
