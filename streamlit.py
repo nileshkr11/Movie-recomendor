@@ -1,63 +1,51 @@
 import streamlit as st
 import pickle
 import pandas as pd
-import requests
-import os
+import requests 
+import gdown
 
-SIMILARITY_FILE_ID = '1fYHwVrnPHGsJ3r_k-zx6c9Wdv0__tW6_'  
-MOVIE_DICT_FILE_ID = '1nsWnBymSJPbwCiEGU2TgSba8sfl8KBs4'  
+simillarity='1fYHwVrnPHGsJ3r_k-zx6c9Wdv0__tW6_'
+moviedict='1nsWnBymSJPbwCiEGU2TgSba8sfl8KBs4'
 
-def download_from_gdrive(file_id, dest_path):
-    url = f'https://drive.google.com/uc?export=download&id={file_id}'
-    response = requests.get(url)
-    with open(dest_path, 'wb') as f:
-        f.write(response.content)
+prefix = 'https://drive.google.com/uc?/export=download&id='
 
-@st.cache_resource
-def load_data():
-    try:
-        if not os.path.exists('similarity.pkl'):
-            download_from_gdrive(SIMILARITY_FILE_ID, 'similarity.pkl')
-        
-        if not os.path.exists('movie_dict.pkl'):
-            download_from_gdrive(MOVIE_DICT_FILE_ID, 'movie_dict.pkl')
-        
-        movies_dict = pickle.load(open('movie_dict.pkl', 'rb'))
-        similarity = pickle.load(open('similarity.pkl', 'rb'))
-        movies = pd.DataFrame(movies_dict)
-        
-        return movies, similarity
-    except Exception as e:
-        st.error(f"Error loading data: {e}")
-        return None, None
 
-movies, similarity = load_data()
+gdown.download(prefix+simillarity)
+gdown.download(prefix+moviedict)
 
-if movies is None or similarity is None:
-    st.stop()
 
-def recommend(movie):
-    try:
-        movie_index = movies[movies['title'] == movie].index[0]
-        distances = similarity[movie_index]
-        movies_list = sorted(list(enumerate(distances)), reverse=True, key=lambda x: x[1])[1:6]
-        return [movies.iloc[i[0]].title for i in movies_list]
-    except IndexError:
-        st.error("Movie not found in database")
-        return []
-    except Exception as e:
-        st.error(f"Error generating recommendations: {e}")
-        return []
+movies_dict=pickle.load(open('movie_dict.pkl', 'rb'))
+similarity=pickle.load(open('similarity.pkl', 'rb'))
+movies=pd.DataFrame(movies_dict)
+
+# def fetch_poster(movie_id):
+#     url = "https://api.themoviedb.org/3/movie/{}?api_key=8265bd1679663a7ea12ac168da84d2e8&language=en-US".format(movie_id)
+#     data = requests.get(url)
+#     data = data.json()
+#     poster_path = data['poster_path']
+#     full_path = "https://image.tmdb.org/t/p/w500/" + poster_path
+#     return full_path
+
+def recommend (movie):
+    movie_index = movies[movies['title'] == movie].index [0]
+    distances = similarity[movie_index]
+    movies_list = sorted (list (enumerate (distances)), reverse=True, key=lambda x:x[1])[2:7]
+    recommended_movies = []
+    recommended_movies_posters = []
+    for i in movies_list:
+        movie_id = i[0]
+        recommended_movies.append(movies.iloc[i[0]].title)
+        # fetch poster from API
+        # recommended_movies_posters.append(fetch_poster(movie_id))
+    return recommended_movies
 
 st.title('Movie Recommender')
 
 selected_movie_name = st.selectbox(
     'Select a movie you like:',
     movies['title'].values)
-
 if st.button('Recommend'):
-    recommendations = recommend(selected_movie_name)
-    if recommendations:
-        st.subheader("Recommended Movies:")
-        for rec in recommendations:
-            st.write(rec)
+    recomendations=recommend(selected_movie_name)
+    for i in recomendations:
+        st.write(i)
+
